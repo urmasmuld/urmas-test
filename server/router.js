@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { Todos } = require("./dbConnection");
+const authRoutes = require("./authenticate.router");
+
+router.use("/auth", authRoutes);
 
 router.get("/calc", function (req, res) {
   const a = 4;
@@ -23,20 +26,28 @@ router.get("/get-todo/:id", async function (request, response) {
 });
 
 router.get("/upd-todo/:id", async function (request, response) {
-  const result = await Todos.updateOne({ _id: request.params.id },
-    { $set:
-        {
-          "status": "COMPLETE"
-        }
-     } );
+  // const result = await Todos.updateOne({ _id: request.params.id },
+  // { status: 'COMPLETE'} või { status: 'ACTIVE'}
+  await Todos.updateOne(
+    { _id: request.params.id }, 
+    { $set: { status: request.body.status } } 
+    );
+  // await Todos.updateOne({ _id: request.params.id },
+  //   { $set:
+  //       {
+  //         "status": "COMPLETE"
+  //       }
+  //    } );
   console.log(result);
   response.send(result);
 });
 
 router.get("/del-todo/:id", async function (request, response) {
-  const result = await Todos.deleteOne( { _id: request.params.id } );
-  console.log(result);
-  response.send(result);
+  // const result = await Todos.deleteOne( { _id: request.params.id } );
+  await Todos.deleteOne( { _id: request.params.id } );
+  // console.log(result);
+  console.log("Deleting todo..");
+  response.send({});
 });
 
 router.post("/add-todo", async function (request, response) {
